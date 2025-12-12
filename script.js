@@ -1,56 +1,106 @@
 document.addEventListener('DOMContentLoaded', function() {
-    
-    const header = document.getElementById('main-header');
-    const navLinks = document.querySelectorAll('.main-nav ul li a');
-    const loginButton = document.getElementById('menu-login');
-    const ctaButton = document.querySelector('.cta-button');
+    const showMoreButton = document.getElementById('show-more-food');
+    const kulinerGrid = document.querySelector('.kuliner-grid');
+    const navbar = document.querySelector('.navbar');
 
-    // --- 1. HEADER DINAMIS SAAT SCROLL ---
+    // 1. Tambahkan konten kuliner lebih banyak (Contoh sederhana)
+    showMoreButton.addEventListener('click', function() {
+        const newFoodItems = [
+            { name: 'Nasi Goreng', desc: 'Nasi yang digoreng dengan bumbu khas, makanan populer di seluruh Indonesia.', img: 'nasgor.jpg' },
+            { name: 'Gado-Gado', desc: 'Salad sayuran rebus dengan saus kacang yang kaya rasa.', img: 'gadogado.jpg' }
+        ];
+
+        newFoodItems.forEach(item => {
+            const div = document.createElement('div');
+            div.classList.add('kuliner-item');
+            div.innerHTML = `
+                <img src="${item.img}" alt="${item.name}">
+                <h4>${item.name}</h4>
+                <p>${item.desc}</p>
+            `;
+            kulinerGrid.appendChild(div);
+        });
+        
+        // Sembunyikan tombol setelah diklik (agar tidak spam)
+        showMoreButton.style.display = 'none'; 
+        alert('Anda telah melihat lebih banyak kuliner! Jelajahi keragaman rasa lainnya!');
+    });
+
+
+    // 2. Efek Navbar Berubah Saat Scrolling
     window.addEventListener('scroll', function() {
-        if (window.scrollY > 100) {
-            header.style.backgroundColor = 'rgba(0, 77, 64, 0.9)'; // Sedikit transparan
-            header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
-            header.style.padding = '10px 50px';
+        if (window.scrollY > 50) {
+            navbar.style.backgroundColor = 'rgba(0, 0, 0, 0.95)'; // Lebih gelap saat scroll
+            navbar.style.boxShadow = '0 2px 5px rgba(0,0,0,0.5)';
         } else {
-            header.style.backgroundColor = '#004d40'; // Warna solid asli
-            header.style.boxShadow = 'none';
-            header.style.padding = '15px 50px';
+            navbar.style.backgroundColor = 'rgba(10, 10, 10, 0.8)'; // Kembali ke semi-transparan
+            navbar.style.boxShadow = 'none';
         }
     });
 
-    // --- 2. SCROLL HALUS UNTUK TAUTAN NAVIGASI ---
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            const targetId = this.getAttribute('href');
-            
-            // Hanya berlaku untuk link internal (yang punya #ID)
-            if (targetId && targetId.startsWith('#') && document.querySelector(targetId)) {
-                e.preventDefault();
-                const targetElement = document.querySelector(targetId);
-                window.scrollTo({
-                    top: targetElement.offsetTop - header.offsetHeight, // Kompensasi header
-                    behavior: 'smooth'
-                });
-            }
+    // 3. Smooth Scrolling (Opsional, tapi meningkatkan UX)
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
         });
     });
 
-    // --- 3. FUNGSI CTA & LOGIN Sederhana ---
-    if (loginButton) {
-        loginButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            alert('Fitur Autentikasi sedang dipersiapkan. Selamat datang!');
-        });
-    }
-
-    if (ctaButton) {
-        ctaButton.addEventListener('click', function() {
-            // Arahkan ke section destinasi saat CTA diklik
-            const destinationSection = document.getElementById('destinations');
-            window.scrollTo({
-                top: destinationSection.offsetTop - header.offsetHeight,
-                behavior: 'smooth'
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.feedback-form form');
+    
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            // Mengambil semua grup rating yang harus diisi
+            const ratingGroups = [
+                'estetika', 
+                'navigasi', 
+                'konten'
+            ];
+            
+            let allRatingsSelected = true;
+            
+            ratingGroups.forEach(groupName => {
+                const radios = form.querySelectorAll(`input[name="${groupName}"]`);
+                let isSelected = false;
+                
+                // Cek apakah ada radio button yang dipilih di grup ini
+                radios.forEach(radio => {
+                    if (radio.checked) {
+                        isSelected = true;
+                    }
+                });
+                
+                if (!isSelected) {
+                    allRatingsSelected = false;
+                    // Secara visual menandai grup yang belum diisi (opsional, perlu CSS tambahan)
+                    const label = document.querySelector(`label[for="${groupName}1"]`).closest('.form-group');
+                    label.style.border = '2px solid red';
+                    label.style.padding = '5px';
+                } else {
+                     // Hapus penanda merah jika sudah diisi (jika sebelumnya ada)
+                    const label = document.querySelector(`label[for="${groupName}1"]`).closest('.form-group');
+                    label.style.border = 'none';
+                    label.style.padding = '0';
+                }
             });
+
+            if (!allRatingsSelected) {
+                event.preventDefault(); // Mencegah formulir terkirim
+                alert('Mohon lengkapi semua penilaian (1-5) sebelum mengirim formulir!');
+            } else {
+                // Jika semua validasi sukses, Anda bisa menambahkan aksi sukses lainnya di sini
+                // Untuk contoh, kita tampilkan alert sederhana dan tetap mencegah pengiriman karena tidak ada backend
+                event.preventDefault();
+                alert('Terima kasih! Penilaian Anda telah kami terima. (Simulasi Pengiriman Berhasil)');
+                
+                // Jika Anda memiliki backend, Anda akan menghapus event.preventDefault() di atas
+                // dan membiarkan form mengirim data ke /submit-feedback.
+            }
         });
     }
 });
